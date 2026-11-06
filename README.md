@@ -78,7 +78,7 @@ or anti-cheat. Some vendors' EULAs forbid disassembly; check before recompiling 
 
 ## Licence
 
-MIT (see [LICENSE](LICENSE)), except the few vendored third-party files listed at the end of that file.
+MIT (see [LICENSE](LICENSE)), except a few vendored third-party files listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Credits
 

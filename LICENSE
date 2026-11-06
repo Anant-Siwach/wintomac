@@ -19,9 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----------------------------------------------------------------------------
-Files under other licences (each keeps its own licence; see CREDITS.md):
-  tests/bench/miniz/          MIT (miniz; its LICENSE file is included)
-  third_party/vkd3d-patches/  LGPL-2.1 (patches to vkd3d, same licence as vkd3d)
-  tests/shaders/dx12_sm6_blobs.h  LGPL-2.1 (shader blobs extracted from the vkd3d-proton v2.14.1 tests)
