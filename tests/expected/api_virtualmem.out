@@ -1,0 +1,17 @@
+alloc rwx: 1
+call jit code: 42
+release: 1
+re-reserve same address: 1
+release once: 1
+release twice: 0 err=487
+heap blocks intact: 1
+reserve over heap: 0 err=487
+release heap pointer: 0 err=487
+release with size: 0 err=87
+map view over heap: 0 err=487
+heap block intact: 1
+decommit: 1
+recommitted page: 00, untouched page: ee
+release reservation: 1
+heap ok: 1
+[exit=0]

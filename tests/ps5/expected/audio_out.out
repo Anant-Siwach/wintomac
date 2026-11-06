@@ -1,0 +1,7 @@
+user init=0
+initial user rc=0
+audio init=0
+open ok=1
+blocks written ok=10
+close=0
+[exit=0]

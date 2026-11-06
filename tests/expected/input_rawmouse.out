@@ -1,0 +1,10 @@
+devices=2 types=0,1 mouse buttons=5 name_ok=yes
+[rt] input: raw mouse registered (flags 0)
+register: 1
+WM_INPUT packets=6 sum dx=7 dy=-2 left down/up=1/1 wheel=-120
+[rt] input: raw mouse registered (flags 0)
+MsgWait(QS_RAWINPUT)=input, GetRawInputBuffer packets=6 sum dx=7 dy=-2
+[rt] input: relative mouse on
+[rt] input: relative mouse off
+[rt] input: raw mouse removed (flags 1)
+[exit=0]

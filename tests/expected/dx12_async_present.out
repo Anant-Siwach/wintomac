@@ -1,0 +1,10 @@
+window visible=0
+synchronous present: 48 presents
+asynchronous present: 48 presents
+waitable, latency 1: 48 frames, 0 wait timeouts, 0 frames started with more than 1 in flight
+waitable, latency 2: 48 frames, 0 wait timeouts, 0 frames started with more than 2 in flight
+last frame pixels correct
+device released, refs=0
+window still hidden=1
+ok
+[exit=0]

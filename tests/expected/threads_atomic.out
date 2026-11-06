@@ -1,0 +1,8 @@
+lock inc   800000 (want 800000)
+lock xadd  1600000 (want 1600000)
+lock add64 2400000 (want 2400000)
+spinlock   800000 (want 800000)
+cmpxchg16b 800000 800000 (want 800000)
+lock bts   ffffffff ffffffff ffffffff ffffffff
+message passing errors: 0
+[exit=0]

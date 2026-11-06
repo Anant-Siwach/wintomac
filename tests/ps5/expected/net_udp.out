@@ -1,0 +1,5 @@
+variant 0: bind=0 sendto=5 poll=1 pollin=1 recv=5 'dgram'
+variant 1: bind=0 sendto=5 poll=1 pollin=1 recv=5 'dgram'
+variant 2: bind=0 sendto=5 poll=1 pollin=1 recv=5 'dgram'
+variant 3: bind=0 sendto=5 poll=1 pollin=1 recv=5 'dgram'
+[exit=0]

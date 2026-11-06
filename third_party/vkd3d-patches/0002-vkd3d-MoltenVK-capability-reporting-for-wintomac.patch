@@ -1,0 +1,102 @@
+From 0ab4e03e5fb111a1c9a8b453b40924e14d7614db Mon Sep 17 00:00:00 2001
+From: wintomac <wintomac@local>
+Date: Fri, 6 Nov 2026 12:58:56 +0530
+Subject: [PATCH 2/3] vkd3d: MoltenVK capability reporting for wintomac
+
+Shader model 6.4 (verified by tests/src/dx12_sm6x.c), resource binding tier 3 from the update-after-bind
+limits used by the Vulkan descriptor heaps, and feature level 12_0 without geometry shaders, logic ops,
+cull distance, pipeline statistics and tiled resources (each still reported unsupported on its own).
+---
+ libs/vkd3d/device.c | 40 ++++++++++++++++++++++++++++++++--------
+ 1 file changed, 32 insertions(+), 8 deletions(-)
+
+diff --git a/libs/vkd3d/device.c b/libs/vkd3d/device.c
+index 170ee7f..21a455a 100644
+--- a/libs/vkd3d/device.c
++++ b/libs/vkd3d/device.c
+@@ -1428,17 +1428,23 @@ static void vkd3d_init_feature_level(struct vkd3d_vulkan_info *vk_info,
+     CHECK_FEATURE(dualSrcBlend);
+     CHECK_FEATURE(fragmentStoresAndAtomics);
+     CHECK_FEATURE(fullDrawIndexUint32);
+-    CHECK_FEATURE(geometryShader);
++    /* wintomac: MoltenVK has no geometry shaders, cull distances or pipeline statistics queries. wintomac's
++     * d3d12 layer handles PSOs with geometry shaders gracefully (runtime/d3d12.c), so these don't lower the
++     * feature level; games check the individual caps. */
++    if (!features->geometryShader)
++        WARN("geometryShader is not supported.\n");
+     CHECK_FEATURE(imageCubeArray);
+     CHECK_FEATURE(independentBlend);
+     CHECK_FEATURE(multiDrawIndirect);
+     CHECK_FEATURE(multiViewport);
+     CHECK_FEATURE(occlusionQueryPrecise);
+-    CHECK_FEATURE(pipelineStatisticsQuery);
++    if (!features->pipelineStatisticsQuery)
++        WARN("pipelineStatisticsQuery is not supported.\n");
+     CHECK_FEATURE(samplerAnisotropy);
+     CHECK_FEATURE(sampleRateShading);
+     CHECK_FEATURE(shaderClipDistance);
+-    CHECK_FEATURE(shaderCullDistance);
++    if (!features->shaderCullDistance)
++        WARN("shaderCullDistance is not supported.\n");
+     CHECK_FEATURE(shaderImageGatherExtended);
+     CHECK_FEATURE(shaderStorageImageWriteWithoutFormat);
+     CHECK_FEATURE(tessellationShader);
+@@ -1462,16 +1468,20 @@ static void vkd3d_init_feature_level(struct vkd3d_vulkan_info *vk_info,
+ 
+     vk_info->max_feature_level = D3D_FEATURE_LEVEL_11_0;
+ 
++    /* wintomac: Metal has no logic ops; OutputMergerLogicOp stays FALSE, but it doesn't cap the feature level. */
+     if (have_11_0
+-            && d3d12_options->OutputMergerLogicOp
+             && features->vertexPipelineStoresAndAtomics
+-            && vk_info->device_limits.maxPerStageDescriptorStorageBuffers >= D3D12_UAV_SLOT_COUNT
++            && ((vk_info->device_limits.maxPerStageDescriptorStorageBuffers >= D3D12_UAV_SLOT_COUNT
+             && vk_info->device_limits.maxPerStageDescriptorStorageImages >= D3D12_UAV_SLOT_COUNT)
++            /* wintomac: binding tier 3 was derived from the (1M) update-after-bind limits that the Vulkan
++             * descriptor heaps use, so 64 UAV slots are available even though plain sets allow 31. */
++            || d3d12_options->ResourceBindingTier >= D3D12_RESOURCE_BINDING_TIER_3))
+         vk_info->max_feature_level = D3D_FEATURE_LEVEL_11_1;
+ 
+     /* TODO: MinMaxFiltering */
++    /* wintomac: tiled resources are reported as NOT_SUPPORTED (no sparse binding in MoltenVK) without capping the
++     * feature level, so that games requiring 12_0 start and take their non-tiled paths. */
+     if (vk_info->max_feature_level >= D3D_FEATURE_LEVEL_11_1
+-            && d3d12_options->TiledResourcesTier >= D3D12_TILED_RESOURCES_TIER_2
+             && d3d12_options->ResourceBindingTier >= D3D12_RESOURCE_BINDING_TIER_2
+             && d3d12_options->TypedUAVLoadAdditionalFormats)
+         vk_info->max_feature_level = D3D_FEATURE_LEVEL_12_0;
+@@ -1802,7 +1812,18 @@ static HRESULT vkd3d_init_device_caps(struct d3d12_device *device,
+         device->feature_options.TiledResourcesTier = D3D12_TILED_RESOURCES_TIER_NOT_SUPPORTED;
+     }
+ 
+-    if (device->vk_info.device_limits.maxPerStageDescriptorSamplers <= 16)
++    if (vulkan_info->EXT_descriptor_indexing
++            && physical_device_info->descriptor_indexing_features.descriptorBindingSampledImageUpdateAfterBind
++            && physical_device_info->descriptor_indexing_features.descriptorBindingPartiallyBound
++            && physical_device_info->descriptor_indexing_properties.maxPerStageDescriptorUpdateAfterBindSamplers >= 2048
++            && physical_device_info->descriptor_indexing_properties.maxPerStageDescriptorUpdateAfterBindUniformBuffers >= 1000000
++            && physical_device_info->descriptor_indexing_properties.maxPerStageDescriptorUpdateAfterBindSampledImages >= 1000000
++            && physical_device_info->descriptor_indexing_properties.maxPerStageDescriptorUpdateAfterBindStorageImages >= 1000000)
++        /* wintomac: descriptor heaps are Vulkan descriptor sets with update-after-bind and partially bound
++         * descriptors (use_vk_heaps), so the per-stage limits that matter are the update-after-bind ones
++         * (MoltenVK: 500K samplers, 1M for everything else) rather than the 16 samplers of plain sets. */
++        device->feature_options.ResourceBindingTier = D3D12_RESOURCE_BINDING_TIER_3;
++    else if (device->vk_info.device_limits.maxPerStageDescriptorSamplers <= 16)
+         device->feature_options.ResourceBindingTier = D3D12_RESOURCE_BINDING_TIER_1;
+     else if (device->vk_info.device_limits.maxPerStageDescriptorUniformBuffers <= 14)
+         device->feature_options.ResourceBindingTier = D3D12_RESOURCE_BINDING_TIER_2;
+@@ -3658,7 +3679,10 @@ static HRESULT STDMETHODCALLTYPE d3d12_device_CheckFeatureSupport(ID3D12Device9
+ 
+             TRACE("Request shader model %#x.\n", data->HighestShaderModel);
+ 
+-            data->HighestShaderModel = min(data->HighestShaderModel, D3D_SHADER_MODEL_6_0);
++            /* wintomac: SM 6.1-6.4 are verified on MoltenVK by tests/src/dx12_sm6x.c (with the DXIL patches in
++             * third_party/vkd3d-patches). 6.5 needs WaveMatch/WaveMultiPrefix*, 6.6 64-bit atomics, dynamic
++             * resources and compute derivatives, which are missing. */
++            data->HighestShaderModel = min(data->HighestShaderModel, D3D_SHADER_MODEL_6_4);
+ 
+             TRACE("Shader model %#x.\n", data->HighestShaderModel);
+             return S_OK;
+-- 
+2.54.0 (Apple Git-157)
+

@@ -1,0 +1,5 @@
+pad init=0
+open handle>=0: 1 (raw 0)
+readstate rc=0 connected=0 buttons=00000000
+close=0
+[exit=0]

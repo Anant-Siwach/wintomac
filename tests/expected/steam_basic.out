@@ -1,0 +1,37 @@
+[rt] steam: ISteamUtils: version not found in the game's steam_api64.dll; using SteamUtils011
+restart=0
+registered: flags=1 id=304, flags=1 id=1101
+before init: user=0000000000000000
+init=1 running=1 user=1 pipe=1
+flat: interfaces 111111, same object again: 1
+flat: steamid=76561197960287930 loggedon=1
+flat: persona=MockPlayer friends=3
+flat: friend[2]=76561197960287942 name=Friend2
+flat: subscribed(480)=1 subscribed(570)=0 dlc(1001)=1 lang=english
+flat: appid=480 country=NL
+flat: kills=7 (1) dist=2.50 (1)
+flat: setstat=1 dist=9.75 ach=1
+flat: cloud write=1 read=12 'save game 1' quota=999988/1000000
+c++: SteamUser021 ok, init_calls=2
+c++: cached, init_calls=2
+c++: GetSteamID=76561197960287930 (returned the hidden pointer: 1) BLoggedOn=1
+c++: overloads: GetStat(float)=9.75 GetStat(int32)=42
+c++: UpdateAvgRateStat(30.0f, 60.0)=1
+c++: RequestCurrentStats=1
+c++: RequestUserStats call=0x1111 FindLeaderboard call=0x2222
+c++: client GetISteamFriends -> MockPlayer015, GetISteamUtils -> appid 480
+c++: GetFriendByIndex(1)=76561197960287941
+warning hook: 0 mock client warning
+warning hook: 1 mock warning
+-- RunCallbacks
+callback PersonaStateChange: steamid=76561197960287931 flags=0x401
+callback UserStatsReceived: game=480 result=1 user=76561197960287930
+call result RequestUserStats: call=0x1111 failed=0
+callback RequestUserStats: game=480 result=1 user=76561197960287999
+-- RunCallbacks again
+c++: FindLeaderboard completed=1 got=1 failed=0 handle=0xabcdef found=1
+c++: entry ok=1 user=76561197960287953 rank=4 score=997 details=2 [10 20] ugc=0x5555000000000003
+legacy SteamUtils(): appid=480
+unregistered: flags=0
+after shutdown: user=0000000000000000 init_calls=3
+[exit=0]

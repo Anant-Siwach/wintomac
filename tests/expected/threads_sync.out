@@ -1,0 +1,8 @@
+CV over CRITICAL_SECTION: sum correct
+CV over SRW lock:         sum correct
+WaitOnAddress handoffs: 1000
+CV timeout: returned FALSE, error=ERROR_TIMEOUT, waited ~100ms: yes
+timer not yet signalled: yes
+timer fired: yes after ~150ms: yes
+reports Windows 10.0 build 19045
+[exit=0]

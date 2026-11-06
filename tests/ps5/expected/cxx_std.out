@@ -1,0 +1,17 @@
+Hello, C++
+~Guard d0
+~Guard d1
+~Guard d2
+caught: boom
+inner 7
+outer re
+out_of_range
+polymorphic catch: Derived 7Derived
+dyncast 1
+1 3 5 7 9 
+a=1 b=2 
+3.5 ff true
+threads total=6000
+thread caught 99
+42 use_count=1
+[exit=0]

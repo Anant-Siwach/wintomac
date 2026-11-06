@@ -1,0 +1,10 @@
+XAudio2Create: ok
+mastering voice: ok
+source voice: ok
+details: channels=1 rate=48000
+queued before start: 4
+frequency ratio: 1.00
+stream end: signalled, buffer starts=4, end-context sum=10 (want 10), queued now=0
+samples advanced mid-stream: yes, reset after end of stream: yes, callbacks on audio thread: yes
+x3daudio: right louder than left: yes, distance=10.0
+[exit=0]

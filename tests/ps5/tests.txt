@@ -1,0 +1,22 @@
+# <suite> <name> <source>   -- run by tools/ps5_check.sh (make ps5-check); expected output: tests/ps5/expected/<name>.out
+# Programs of one C suite are linked into ONE ELF (tools/ps5_suite.sh: one relink + recompile for all), run as `<exe> <name>`.
+# Suite "-" = a standalone program (C++, or anything that needs its own link flags).
+- hello tests/ps5/hello.c
+c thr_mutex tests/ps5/thr_mutex.c
+c time_test tests/ps5/time_test.c
+c mem_map tests/ps5/mem_map.c
+c net_loop tests/ps5/net_loop.c
+c net_udp tests/ps5/net_udp.c
+c sce_kernel tests/ps5/sce_kernel.c
+c sce_net tests/ps5/sce_net.c
+c audio_out tests/ps5/audio_out.c
+c pad_none tests/ps5/pad_none.c
+- cxx_throw tests/ps5/cxx_throw.cpp
+# Known failing (see docs/ps5_compat.md): readdir() on /data returns no entries.
+# c file_io tests/ps5/file_io.c
+# cxx_std (tests/ps5/cxx_std.cpp, SDK-static libc++) is not in the list: see docs/ps5_compat.md; C++ exceptions are covered by cxx_throw.
+# ps5-payload-sdk samples, unchanged
+sdk sdk_hello_stdio third_party/ps5-payload-sdk/sdk/ps5-payload-sdk/samples/hello_stdio/main.c
+sdk sdk_hello_argv third_party/ps5-payload-sdk/sdk/ps5-payload-sdk/samples/hello_argv/main.c
+sdk sdk_hello_world third_party/ps5-payload-sdk/sdk/ps5-payload-sdk/samples/hello_world/main.c
+# sdk sdk_hello_dlfcn third_party/ps5-payload-sdk/sdk/ps5-payload-sdk/samples/hello_dlfcn/main.c   (known failing: dlopen("libSceRandom.sprx") returns NULL)

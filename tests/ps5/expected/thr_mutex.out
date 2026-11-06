@@ -1,0 +1,5 @@
+counter=80000 once=1 tls_ok=4 rw=6 retsum=60
+recursive trylock=0
+plain trylock=0 again=busy
+sem: posted wait ok
+[exit=0]

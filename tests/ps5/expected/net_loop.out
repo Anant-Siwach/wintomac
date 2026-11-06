@@ -1,0 +1,9 @@
+bind=0
+port assigned=1
+listen=0
+connect=0
+echo(14)=HELLO LOOPBACK
+poll=1
+udp(5)=dgram
+addr=127.0.0.1
+[exit=0]

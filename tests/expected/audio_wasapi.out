@@ -1,0 +1,45 @@
+CoCreateInstance(MMDeviceEnumerator): ok
+render endpoints: ok, count>=1: yes, Item(count) fails: yes
+GetDefaultAudioEndpoint(eAll): E_INVALIDARG: yes
+default render: ok, active: yes, id: yes, GetDevice(id): yes
+IMMEndpoint data flow is eRender: yes
+property store: ok, friendly name is a string: yes
+device format blob: yes
+Activate(IAudioClient): ok
+mix format: extensible=yes float=yes bits=32 align_ok=yes
+IsFormatSupported(mix): S_OK=yes closest=NULL: yes
+IsFormatSupported(16-bit 22 kHz mono): S_FALSE-with-closest or unsupported: yes
+IsFormatSupported(shared, no closest ptr): E_POINTER: yes
+IsFormatSupported(MP3): unsupported: yes
+before Initialize: GetBufferSize=NOT_INITIALIZED GetService=NOT_INITIALIZED
+device period: default>0: yes min<=default: yes
+Initialize(shared, event): ok, again: ALREADY_INITIALIZED
+Start without event handle: EVENTHANDLE_NOT_SET
+SetEventHandle: ok
+buffer holds at least one period: yes, latency>=0: yes
+services: render=ok clock=ok capture-on-render=WRONG_ENDPOINT_TYPE
+IAudioClock2 before start: ok position=0: yes
+clock: frequency>0: yes position before start=0: yes
+GetBuffer(buffer+1): BUFFER_TOO_LARGE
+ReleaseBuffer without GetBuffer: OUT_OF_ORDER
+prefill: ok, padding == buffer: yes
+Start: ok, again: NOT_STOPPED
+event-driven: events=30/30 padding<=buffer: yes clock monotonic: yes
+clock advanced plausibly: yes, not beyond written data: yes
+Reset while running: NOT_STOPPED
+Stop: S_OK, again: S_FALSE
+Reset: ok, padding=0: yes, position=0: yes
+stream volume: ok channels=mix: yes set/get: yes out-of-range: yes
+session volume: ok set/get: yes >1 rejected: yes
+session control: ok state=inactive: yes
+polling: Initialize ok, buffer>=100ms: yes, SetEventHandle: EVENTHANDLE_NOT_EXPECTED
+polling: padding drained while running: yes
+16-bit 44.1 kHz autoconvert: ok, events=5/5
+IAudioClient3 engine periods consistent: yes
+InitializeSharedAudioStream(default period): ok
+exclusive IsFormatSupported: documented result: yes
+endpoint volume: ok range ok: yes scalar in [0,1]: yes
+session manager: ok sessions>=1: yes
+capture: delivers packets or no device: yes
+ActivateAudioInterfaceAsync: ok, completed: yes, client: yes
+[exit=0]

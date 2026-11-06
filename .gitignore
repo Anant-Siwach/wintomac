@@ -1,0 +1,48 @@
+# Build output (regenerable)
+build/
+dist/
+.venv/
+__pycache__/
+*.o
+*.d
+*.bin
+*.dxvk-cache
+
+# macOS and editor clutter
+.DS_Store
+
+# Runtime logs and traces
+*.log
+wintomac_*.txt
+
+# Third-party material that is downloaded or built by our scripts, never committed:
+#  - games, game data and benchmarks (copyrighted; users fetch their own: see docs)
+#  - binary corpora used to measure API coverage
+#  - toolchains and libraries built from source (fetched by tools/build_*.sh)
+#  - Valve's Steamworks headers (via Proton's lsteamclient checkout): SDK licence forbids redistribution;
+#    only the ABI table generated from them (runtime/gen/steam_ifaces.h) is kept
+third_party/games/
+third_party/corpus/
+third_party/proton-lsteamclient/
+third_party/dxvk-macos/
+third_party/dxvk-macos-src/
+third_party/vkd3d/
+third_party/vkd3d-msl/
+third_party/vkd3d-proton-src/
+third_party/dxc/
+third_party/dxil-spirv/
+third_party/spirv-cross/
+third_party/zydis/
+third_party/anyps5-win/
+third_party/anyps5-main/
+third_party/anyps5-src/
+third_party/gcc-mingw-sysv-seh/
+third_party/llvm-mingw/
+third_party/directx-headers/
+third_party/dx-samples/
+third_party/ps5-payload-sdk/
+third_party/metal-shaderconverter/
+third_party/opengl-registry/gl.xml
+
+# Keep the patches and pinned metadata we author
+!third_party/vkd3d-patches/

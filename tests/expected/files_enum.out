@@ -1,0 +1,15 @@
+fstest\*               -> ../ ./ Beta.TXT Sub/ alpha.txt gamma.dat noext  (end: NO_MORE_FILES)
+fstest\*.*             -> ../ ./ Beta.TXT Sub/ alpha.txt gamma.dat noext  (end: NO_MORE_FILES)
+fstest\*.txt           -> Beta.TXT alpha.txt  (end: NO_MORE_FILES)
+FSTEST\?????.txt       -> alpha.txt  (end: NO_MORE_FILES)
+fstest\sub\*           -> ../ ./ deep.txt  (end: NO_MORE_FILES)
+fstest\*.nothing       -> none (error 2)
+info: size=20 dir=0 links=1
+write time is this year: yes
+overlapped read @10: 'abcde' (5 bytes, accepted, event signalled)
+read past end: ERROR_HANDLE_EOF
+copy (no overwrite) to existing: refused
+copy: ok
+rmdir non-empty: ERROR_DIR_NOT_EMPTY
+cleanup: ok
+[exit=0]

@@ -1,0 +1,12 @@
+#!/bin/sh
+# Homebrew's x86_64-w64-mingw32 GCC driver with the compilers proper (cc1, cc1plus) taken from
+# third_party/gcc-mingw-sysv-seh: the same GCC 16.2.0 rebuilt with GCC commit b0f09b72 ("i386: Keep SEH enabled for
+# Win64 sysv_abi functions"), the patch MSYS2's GCC 16.2.0-6 carries. AnyPS5's Windows libraries need it: their
+# System V ABI functions catch C++ exceptions, which stock GCC 16.2 fails to assemble (".seh_handlerdata used outside
+# of .seh_proc block"). Everything else (headers, libstdc++, libgcc, binutils, CRT) is Homebrew's mingw-w64.
+# Called as x86_64-w64-mingw32-gcc or x86_64-w64-mingw32-g++ (symlinks); tools/mingw-w64-x86_64.cmake selects it.
+here="$(cd "$(dirname "$0")" && pwd)"
+: "${MINGW_ROOT:=/opt/homebrew/opt/mingw-w64/toolchain-x86_64}"
+: "${GCC_SYSV_SEH:=$here/../../third_party/gcc-mingw-sysv-seh/overlay}"
+case "$0" in *++) tool=g++ ;; *) tool=gcc ;; esac
+exec "$MINGW_ROOT/bin/x86_64-w64-mingw32-$tool" "-B$GCC_SYSV_SEH/" "$@"

@@ -1,0 +1,9 @@
+slot0=connected slot1=not connected
+buttons=0x1201 (A=1 up=1 RB=1 B=0)
+triggers L=0 R=255
+left stick (16000,16000) right stick (0,32767)
+packet number stable while idle: yes
+capabilities: ok type=1 subtype=1
+rumble: ok
+keystroke queue: empty
+[exit=0]

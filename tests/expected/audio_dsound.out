@@ -1,0 +1,14 @@
+first device: guid=NULL desc=Primary Sound Driver
+devices enumerated: 2
+DirectSoundCreate8: ok
+primary: ok, format 48000 Hz 2 ch
+secondary: ok
+wrapping lock: first=820 second=1180 second_at_start=yes
+notify interface: ok, set positions: ok
+volume=-600, out-of-range rejected: yes
+one-shot: midpoint=yes stopped=yes status_after=0 play_cursor_after=0 length_plausible=yes
+double speed: freq=44100 stopped=yes faster=yes
+looping: status=5 midpoint_hits>=2: yes stop_event_on_Stop: yes
+duplicate: ok freq=22050
+3D buffer interface: not available
+[exit=0]

@@ -1,0 +1,22 @@
+window visible=0
+device on DXGI adapter 0 ok
+created: 64x48 fmt=28 buffers=3 effect=4 flags=64 | desc 64x48 windowed=1 | fullscreen=0 output=0
+parent is factory=1, device is queue=1, containing output=1
+latency waitable=1
+frame 0: buffer 0 (64x48) centre=255,0,0,255 corner=255,0,0,255 hash=cf62121871289b83
+frame 1: buffer 1 (64x48) centre=0,255,0,255 corner=0,255,0,255 hash=32d7a521a6606383
+frame 2: buffer 2 (64x48) centre=0,0,255,255 corner=0,0,255,255 hash=3448a63a1ce47b83
+frame 3: buffer 0 (64x48) centre=255,255,0,255 corner=255,255,0,255 hash=340782bda9706383
+present count=4
+resized: 96x32 fmt=87 buffers=2 effect=4 flags=64 | desc 96x32 windowed=1 | fullscreen=0 output=0
+frame 4: buffer 0 (96x32) centre=255,255,0,255 corner=255,255,0,255 hash=340782bda9706383
+frame 5: buffer 1 (96x32) centre=0,0,255,255 corner=0,0,255,255 hash=3448a63a1ce47b83
+client size: 160x120 fmt=87 buffers=2 effect=4 flags=64 | desc 160x120 windowed=1 | fullscreen=0 output=0
+frame 6: buffer 0 (160x120) centre=0,255,0,255 corner=0,255,0,255 hash=f0425e50c8221b83
+fullscreen: 160x120 fmt=87 buffers=2 effect=4 flags=64 | desc 160x120 windowed=0 | fullscreen=1 output=1
+windowed: 160x120 fmt=87 buffers=2 effect=4 flags=64 | desc 160x120 windowed=1 | fullscreen=0 output=0
+window still hidden=1
+swapchain released, refs=0
+device released, refs=0
+ok
+[exit=0]

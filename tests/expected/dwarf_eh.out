@@ -1,0 +1,28 @@
+DWARF C++ exceptions
+  ~Guard l3
+  ~Guard l2
+  ~Guard l1
+l1(0) = 3
+  ~Guard l3
+  ~Guard l2
+  ~Guard l1
+caught int 1 live=0
+  ~Guard l3
+  ~Guard l2
+  ~Guard l1
+caught Boom 200 live=0
+  ~Guard l3
+  ~Guard l2
+  ~Guard l1
+caught (...) live=0
+  inner caught 42, rethrowing
+outer caught rethrown 42
+  ~Guard in-catch
+caught the new one 7 live=0
+  ~Guard l3
+  ~Guard l2
+  ~Guard l1
+keep_regs = 5167
+caught Boom 9 through an rbp-framed function
+500 throws: total=500 live=0
+[exit=0]

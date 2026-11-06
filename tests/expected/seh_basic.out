@@ -1,0 +1,14 @@
+  inner finally (abnormal=0)
+normal: 1
+  filter: code=0xe0001234 params=1 p0=77
+  inner finally (abnormal=1)
+  inner caught 0xe0001234
+raised: -1
+  filter: code=0xc0000094 params=0 p0=0
+  inner finally (abnormal=1)
+main caught divide by zero
+  inner finally (abnormal=1)
+main caught 0xe0005678
+1000 raises caught: 1000
+finally runs=4 filter calls=4
+[exit=0]

@@ -1,0 +1,33 @@
+C++ exceptions via libc.prx
+  no throw
+  ~Guard l3
+  ~Guard l2
+  ~Guard l1
+level1 = 3
+  ~Guard l3
+  ~Guard l2
+  ~Guard l1
+caught IoErr code=5 live=0
+  ~Guard l3
+  ~Guard l2
+  ~Guard l1
+caught by base: IoErr code=6 live=0
+  ~Guard l3
+  ~Guard l2
+  ~Guard l1
+caught (...) live=0
+  inner caught 42, rethrowing
+outer caught rethrown 42
+  caught 1.5, throwing a new one
+  ~Guard in-catch
+caught the new one 7 live=0
+  ~Guard nic
+  nested throw 'x' inside a destructor during unwinding
+caught 99 after nested handling, live=0
+caught Err from the qsort comparator after 5 calls
+sorted after: 0 1 2 ... 15
+caught libc.prx's own exception (qsort with no comparator)
+2000 throws through up to 50 frames: total=2000 live=0
+last: Err
+done
+[exit=0]

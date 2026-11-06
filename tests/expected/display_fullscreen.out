@@ -1,0 +1,18 @@
+modes listed: yes, current == registry: yes, bpp=32
+CDS_TEST 1280x720: 0
+unchanged after test: yes
+[rt] display: virtual mode set to 1280x720
+CDS_FULLSCREEN 1280x720: 0
+current mode 1280x720, metrics 1280x720, monitor 1280x720
+[rt] display: window entered fullscreen (1280x720)
+popup covering screen: client 1280x720 at (0,0), last WM_SIZE 1280x720
+[rt] display: window left fullscreen (1280x720)
+back to windowed: client 800x600 at (100,100), last WM_SIZE 800x600
+[rt] display: window entered fullscreen (1280x720)
+fullscreen again: client 1280x720 at (0,0), last WM_SIZE 1280x720
+[rt] display: virtual mode reset to desktop
+[rt] display: window left fullscreen (1280x720)
+restore desktop: 0
+current is desktop again: yes
+10x10 rejected: yes
+[exit=0]

@@ -1,0 +1,36 @@
+open missing: 2
+create nested: 0 disp=1
+create existing: 0 disp=2
+size A: r=0 type=1 cb=6
+size W: r=0 type=1 cb=12
+small buffer: r=234 cb=6
+W value via A: r=0 'wide' cb=5
+A value via W (case-insensitive name): r=0 len=5 cb=12
+default value: r=0 'default'
+missing value: 2
+qword: r=0 type=11 1122334455667788
+multi: r=0 type=7 cb=6 'a' 'bc'
+RegGetValue dword: r=0 12345678
+RegGetValue wrong type: 1630
+RegGetValueW sz: r=0 cb=10
+RegGetValue missing key: 2
+value 0: 'dw' len=2 type=4 cb=4
+value 1: 'str' len=3 type=1 cb=6
+value 2: 'wstr' len=4 type=1 cb=5
+value 3: 'bin' len=3 type=3 cb=3
+value 4: 'q' len=1 type=11 cb=8
+value 5: 'multi' len=5 type=7 cb=6
+value 6: '' len=0 type=1 cb=8
+enum value end: 259
+key 0: 'Sub' len=3
+enum key end: 259
+info: r=0 subkeys=1 maxsub=3 values=7 maxname=5
+delete value: 0
+delete value again: 2
+delete key with subkeys: 5
+delete subkey: 0
+delete tree: 0
+open deleted: 2
+Windows major version: r=0 10
+cpu key: 0 name: 0 type=1 nonempty=1
+[exit=0]

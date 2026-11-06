@@ -1,0 +1,53 @@
+strcpy_s: 0 'hello'
+strcpy_s too long: 34 ''
+strcat_s: 0 'abcd'
+strncpy_s truncate: 80 'abc'
+strncpy_s count: 0 'abc'
+memcpy_s overflow: 34 first=0
+wcscat_s: 0 widestr
+wcsncpy_s truncate: 80 abc
+_strrev: CBA  _strupr: CBA
+_wcsdup: dup  _wcslwr: dup
+tok=a tok=b tok=c
+mbstowcs_s: 0 conv=5 w[2]=00fc
+wcstombs unmappable: -1 errno=42
+wcstombs: 5 'plain'
+wcstol: -123 rest=xyz
+wcstoul hex: 255
+wcstol overflow: 2147483647 errno=34
+wcstod: 2500.0 rest=!
+_wtoi: 42  _wtof: 1.25
+_itoa: ffffff01 -255 101
+_itoa_s small: 34
+_ultow: bee
+_dclass: -1 0 1 2 -2
+_dsign: 32768 0  _fdclass: -1
+lround: 3 -3  llround: 1000000000001  cbrt: 3.000  hypotf: 5.00  fmaf: 7.0
+modf: -0.75 -3.00  remainder: -1.0  scalbn: 12.0
+nextafter > 1: 1  erf(0): 0.0  logb(8): 3.0
+qsort_s: 1 3 5 9 (comparator called: yes)
+swprintf_s: 5 7-w-n
+_vsnwprintf_s truncate: -1 trunc
+_vscprintf: 8
+strerror_s: No such file or directory
+_gmtime64_s: 0 1971-01-01 wday=5 yday=0
+_gmtime64_s negative: 22
+_mkgmtime64 roundtrip: yes
+GetDateFormat: Saturday, March 9, 2024
+GetDateFormat: Sat 09/Mar/24
+GetTimeFormat: 02:05:07 PM
+GetTimeFormat: 14h5
+GetDateFormat size query: 5
+GetNumberFormat: -1,234,567.89
+GetNumberFormat custom: 10 000.0
+CompareStringOrdinal: 2 3 1
+LocaleNameToLCID: 409  lstrlenW: 4  lstrcmpiW: 0
+ExpandEnvironmentStrings: val-%WTM_NOPE%-%
+InitOnceExecuteOnce: calls=1 ctx=0000000000001230
+processor cores: ok=1 match=yes
+anon mapping handle: ok
+SHA256(abc): 0 ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
+BCryptGenRandom: 0
+base64: aGVsbG8= (8)
+unbase64: hello (5)
+[exit=0]

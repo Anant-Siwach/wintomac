@@ -1,0 +1,12 @@
+lines=100 bytes=790
+tell=5 c=0
+size=790 isreg=1
+write=256
+lseek=100
+read 100 101 102 103
+b exists=0 c exists=1
+entry a.txt
+entry c.bin
+missing -> NULL errno=1
+cleanup dir exists=0
+[exit=0]

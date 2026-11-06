@@ -1,0 +1,11 @@
+sema create=0
+evf create=0
+pthread create=0
+cond flag=5
+pollsema(empty)=EBUSY
+waitevf=0 res=5
+join=0 ret=77
+usleep 30ms: 1
+counter freq nonzero=1 counter nonzero=1
+tsc freq plausible=1
+[exit=0]

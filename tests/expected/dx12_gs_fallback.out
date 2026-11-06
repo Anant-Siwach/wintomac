@@ -1,0 +1,50 @@
+[rt] d3d12: PSO: pass-through geometry shader dropped (trianglelist -> trianglestrip x3, 1 instance(s)) (hr 0x00000000)
+[rt] d3d12: PSO: pass-through geometry shader dropped (trianglelist -> trianglestrip x3, 1 instance(s)) (hr 0x00000000)
+[rt] d3d12: PSO: geometry shader not emulated (pointlist -> trianglestrip x4, 1 instance(s)): draws skipped (hr 0x00000000)
+[rt] d3d12: PSO: geometry shader not emulated (trianglelist -> trianglestrip x3, 1 instance(s), writes SV_RenderTargetArrayIndex): draws skipped (hr 0x00000000)
+[rt] d3d12: draw skipped (pipeline uses an unsupported geometry shader / stream output)
+[rt] d3d12: draw skipped (pipeline uses an unsupported geometry shader / stream output)
+[rt] d3d12: draw skipped (pipeline uses an unsupported geometry shader / stream output)
+[rt] d3d12: PSO: stream output removed (capture-only: draws skipped) (hr 0x00000000)
+[rt] d3d12: draw skipped (pipeline uses an unsupported geometry shader / stream output)
+[rt] d3d12: unimplemented: SetPredication: no conditional rendering in MoltenVK, predicated work always executes
+[rt] d3d12: unimplemented: sampler border colour approximated (no VK_EXT_custom_border_color)
+tiled resources tier=0, VP/RT index from VS without GS=1
+PSOs: plain 0x00000000, pass-through DXBC 0x00000000 DXIL 0x00000000, point expansion 0x00000000, layered 0x00000000
+no GS                        lit= 748 centre=0,0,0,255 hash=15ce85272777820b
+pass-through GS (DXBC)       lit= 748 centre=0,0,0,255 hash=15ce85272777820b
+  pass-through GS DXBC: same as no GS
+pass-through GS (DXIL)       lit= 748 centre=0,0,0,255 hash=15ce85272777820b
+  pass-through GS DXIL: same as no GS
+point expansion GS (skipped) lit=   0 centre=0,0,0,255 hash=5f9eb3fedcef8383
+layered GS (skipped)         lit=   0 centre=0,0,0,255 hash=5f9eb3fedcef8383
+skip then plain              lit= 748 centre=0,0,0,255 hash=15ce85272777820b
+  skipped PSO, then plain PSO: plain draw rendered
+PSOs: stream output capture-only 0x00000000, rasterized 0x00000000
+SO capture-only (skipped)    lit=   0 centre=0,0,0,255 hash=5f9eb3fedcef8383
+SO + rasterized stream       lit= 748 centre=0,0,0,255 hash=15ce85272777820b
+  SO + rasterized stream: same as no SO
+predicated (always draws)    lit= 748 centre=0,0,0,255 hash=15ce85272777820b
+  predicated draw: executed
+z=1.5, depth clip on         lit=   0 centre=0,0,0,255 hash=5f9eb3fedcef8383
+z=1.5, depth clip off        lit= 748 centre=0,0,0,255 hash=15ce85272777820b
+border {0.9,0.9,0.9,1}       lit= 748 centre=0,0,0,255 hash=5b8cafc334e730d3
+  -> sampled 255,255,255,255
+border {0.2,0.3,0.1,0.8}     lit=   0 centre=0,0,0,255 hash=5f9eb3fedcef8383
+  -> sampled 0,0,0,255
+border {1,0,0,0.2}           lit=   0 centre=0,0,0,255 hash=10a68c7a7a4a07a3
+  -> sampled 0,0,0,0
+border {1,1,1,1}             lit= 748 centre=0,0,0,255 hash=5b8cafc334e730d3
+  -> sampled 255,255,255,255
+null SRV Texture2D           lit=   0 centre=0,0,0,255 hash=10a68c7a7a4a07a3
+  -> sampled 0,0,0,0
+null SRV Texture3D           lit=   0 centre=0,0,0,255 hash=5f9eb3fedcef8383
+  -> sampled 0,0,0,255
+null SRV TextureCube         lit=   0 centre=0,0,0,255 hash=5f9eb3fedcef8383
+  -> sampled 0,0,0,255
+null SRV Buffer              lit=   0 centre=0,0,0,255 hash=5f9eb3fedcef8383
+  -> sampled 0,0,0,255
+CreateReservedResource: fails cleanly
+device released, refs=0
+ok
+[exit=0]

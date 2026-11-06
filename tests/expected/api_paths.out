@@ -1,0 +1,50 @@
+full 'C:\x\y\..\z.' -> 'C:\x\z' (6) file=z
+full 'C:/a//b/' -> 'C:\a\b\' (7) file=(null)
+full '\\server\share\x\..\y' -> '\\server\share\y' (16) file=y
+full 'C:\a\.\b\..\..\..\c' -> 'C:\c' (4) file=c
+relative resolves against cwd: yes
+too small buffer -> 7
+chdir ptest: 1
+cwd ends with \ptest: yes
+chdir ..: 1
+cwd restored: yes
+file seen from parent: yes
+chdir missing: 0 err=2
+temp name: 4660 'ptest\abc1234.tmp'
+drive C: 3, Q: 1
+long path of existing: ptest\f.txt
+long path of missing: 0 err=2
+disk free: 1
+MoveFile onto existing: 0 err=183
+MoveFileEx replace: 1
+file mapping: 039
+unmap: 1
+anonymous named mapping: 'shared'
+open missing mapping: 0000000000000000 err=2
+standard info: size=10 dir=0 links=1
+name info ends with \ptest\f.txt: yes
+set end of file: 1 -> 4
+lock: 1 unlock: 1
+PathAppend: C:\a\c
+PathCombine: C:\dir\sub\file.txt
+PathCombine rooted: C:\root.txt
+PathFindExtension: .gz  PathFindFileName: file.tar.gz
+PathRemoveFileSpec: C:\a | C:\
+PathIsRelative: 1 0 0
+PathRemoveExtension: C:\a\name
+PathAddBackslash: C:\a\ | C:\a
+PathCanonicalize: C:\a\c
+PathFileExists: 1 0
+_fullpath: C:\r
+_splitpath_s: 'C:' '\dir\sub\' 'name' '.ext'
+_makepath_s: D:\x\y\file.txt
+_stat64 file: 0 size=4 mode=81b6
+_stat64 dir: 0 mode=41ff
+_stat64 trailing slash: -1
+_access: 0 -1
+_getcwd matches: yes
+_findfirst *.txt: 2 files, 8 bytes
+_mkdir/_rmdir: 0 0
+_unlink missing: -1 errno=2
+cleanup: 1
+[exit=0]

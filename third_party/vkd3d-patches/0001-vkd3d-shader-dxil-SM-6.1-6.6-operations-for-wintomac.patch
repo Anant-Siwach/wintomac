@@ -1,0 +1,355 @@
+From bbe1779b2d10e37f73e26bfd0cf95d3d46bfd372 Mon Sep 17 00:00:00 2001
+From: wintomac <wintomac@local>
+Date: Fri, 6 Nov 2026 12:58:56 +0530
+Subject: [PATCH 1/3] vkd3d-shader/dxil: SM 6.1-6.6 operations for wintomac
+
+createHandleFromBinding/annotateHandle (all SM 6.6 shaders), [WaveSize(32)], pack4x8/unpack4x8,
+dot4add_{i8,u8}packed, dot2add, SV_ViewID (always view 0: no view instancing).
+---
+ libs/vkd3d-shader/dxil.c | 293 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 293 insertions(+)
+
+diff --git a/libs/vkd3d-shader/dxil.c b/libs/vkd3d-shader/dxil.c
+index 8e6c91f..e196526 100644
+--- a/libs/vkd3d-shader/dxil.c
++++ b/libs/vkd3d-shader/dxil.c
+@@ -479,8 +479,16 @@ enum dx_intrinsic_opcode
+     DX_LEGACY_F16TOF32              = 131,
+     DX_WAVE_ALL_BIT_COUNT           = 135,
+     DX_WAVE_PREFIX_BIT_COUNT        = 136,
++    DX_VIEW_ID                      = 138,
+     DX_RAW_BUFFER_LOAD              = 139,
+     DX_RAW_BUFFER_STORE             = 140,
++    DX_DOT2_ADD_HALF                = 162,
++    DX_DOT4_ADD_I8_PACKED           = 163,
++    DX_DOT4_ADD_U8_PACKED           = 164,
++    DX_ANNOTATE_HANDLE              = 216,
++    DX_CREATE_HANDLE_FROM_BINDING   = 217,
++    DX_UNPACK4X8                    = 219,
++    DX_PACK4X8                      = 220,
+ };
+ 
+ enum dxil_cast_code
+@@ -5897,6 +5905,22 @@ static void sm6_parser_emit_dx_coverage(struct sm6_parser *dxil, enum dx_intrins
+     sm6_parser_emit_dx_input_register_mov(dxil, state, VKD3DSPR_COVERAGE, VSIR_DATA_U32, false);
+ }
+ 
++static bool dxil_emit_op(struct sm6_parser *sm6, struct function_emission_state *state, enum vkd3d_shader_opcode op,
++        const struct vkd3d_shader_register *dst, unsigned int dst_mask, unsigned int ssa_components,
++        unsigned int src_count, const struct vkd3d_shader_register *srcs, const unsigned int *comps);
++
++/* SM 6.1 SV_ViewID. libvkd3d reports D3D12_VIEW_INSTANCING_TIER_NOT_SUPPORTED, so pipelines never have more than
++ * one view and the view index is always 0. */
++static void sm6_parser_emit_dx_view_id(struct sm6_parser *dxil, enum dx_intrinsic_opcode op,
++        const struct sm6_value **operands, struct function_emission_state *state)
++{
++    struct vkd3d_shader_register zero;
++    unsigned int comp = 0;
++
++    register_make_constant_uint(&zero, 0);
++    dxil_emit_op(dxil, state, VSIR_OP_MOV, NULL, 0, 1, 1, &zero, &comp);
++}
++
+ static const struct sm6_descriptor_info *sm6_parser_get_descriptor(struct sm6_parser *sm6,
+         enum vkd3d_shader_descriptor_type type, unsigned int id, const struct sm6_value *address)
+ {
+@@ -5946,6 +5970,250 @@ static void sm6_parser_emit_dx_create_handle(struct sm6_parser *sm6, enum dx_int
+     dst->u.handle.non_uniform = !!sm6_value_get_constant_uint(operands[3], sm6);
+ }
+ 
++/* SM 6.6: createHandleFromBinding(%dx.types.ResBind {lower, upper, space, class}, index, non_uniform).
++ * The resources are still declared in the metadata, so find the declaration whose range contains the binding. */
++static void sm6_parser_emit_dx_create_handle_from_binding(struct sm6_parser *sm6, enum dx_intrinsic_opcode op,
++        const struct sm6_value **operands, struct function_emission_state *state)
++{
++    const union vsir_immediate_constant *bind;
++    const struct sm6_descriptor_info *d;
++    unsigned int lower, upper, space;
++    enum vkd3d_shader_descriptor_type type;
++    struct sm6_value *dst;
++    size_t i;
++
++    if (operands[0]->value_type != VALUE_TYPE_CONSTANT)
++    {
++        vkd3d_shader_parser_error(&sm6->p, VKD3D_SHADER_ERROR_DXIL_INVALID_OPERAND,
++                "Resource binding operand is not a constant.");
++        return;
++    }
++    bind = &operands[0]->u.constant.immconst;
++    lower = bind->immconst_u32[0];
++    upper = bind->immconst_u32[1];
++    space = bind->immconst_u32[2];
++    type = bind->immconst_u32[3];
++
++    for (i = 0, d = NULL; i < sm6->descriptor_count; ++i)
++    {
++        const struct sm6_descriptor_info *c = &sm6->descriptors[i];
++
++        if (c->type == type && c->range.space == space && c->range.first <= lower
++                && (c->range.last == ~0u || (upper != ~0u && upper <= c->range.last)))
++        {
++            d = c;
++            break;
++        }
++    }
++    if (!d)
++    {
++        vkd3d_shader_parser_error(&sm6->p, VKD3D_SHADER_ERROR_DXIL_INVALID_OPERAND,
++                "Descriptor for resource type %#x, space %u, range %u-%u was not found.", type, space, lower, upper);
++        return;
++    }
++
++    dst = sm6_parser_get_current_value(sm6);
++    dst->value_type = VALUE_TYPE_HANDLE;
++    dst->u.handle.d = d;
++    dst->u.handle.index = operands[1];
++    dst->u.handle.non_uniform = !!sm6_value_get_constant_uint(operands[2], sm6);
++}
++
++/* SM 6.6: annotateHandle(handle, %dx.types.ResourceProperties). The properties duplicate the metadata
++ * declaration the handle was created from. */
++static void sm6_parser_emit_dx_annotate_handle(struct sm6_parser *sm6, enum dx_intrinsic_opcode op,
++        const struct sm6_value **operands, struct function_emission_state *state)
++{
++    struct sm6_value *dst = sm6_parser_get_current_value(sm6);
++
++    dst->value_type = VALUE_TYPE_HANDLE;
++    dst->u.handle = operands[0]->u.handle;
++}
++
++/* Helpers for intrinsics that expand to several VSIR instructions (SM 6.4 dot4add, SM 6.6 pack/unpack). */
++static void dxil_reg_temp_vec4(struct vkd3d_shader_register *reg, enum vsir_data_type type,
++        struct function_emission_state *state)
++{
++    register_init_with_id(reg, VKD3DSPR_TEMP, type, state->temp_idx++);
++    reg->dimension = VSIR_DIMENSION_VEC4;
++}
++
++static void dxil_reg_imm_vec4(struct vkd3d_shader_register *reg, uint32_t x, uint32_t y, uint32_t z, uint32_t w)
++{
++    vsir_register_init(reg, VKD3DSPR_IMMCONST, VSIR_DATA_U32, 0);
++    reg->dimension = VSIR_DIMENSION_VEC4;
++    reg->u.immconst_u32[0] = x;
++    reg->u.immconst_u32[1] = y;
++    reg->u.immconst_u32[2] = z;
++    reg->u.immconst_u32[3] = w;
++}
++
++/* Emit "dst.mask = op(src...)". dst == NULL: the result is the current SSA value (scalar or vec4).
++ * Each source is a register plus a swizzle (component index, or ~0u for .xyzw). */
++static bool dxil_emit_op(struct sm6_parser *sm6, struct function_emission_state *state, enum vkd3d_shader_opcode op,
++        const struct vkd3d_shader_register *dst, unsigned int dst_mask, unsigned int ssa_components,
++        unsigned int src_count, const struct vkd3d_shader_register *srcs, const unsigned int *comps)
++{
++    struct vkd3d_shader_instruction *ins;
++    struct vsir_src_operand *src_params;
++    struct vsir_dst_operand *dst_param;
++    unsigned int i;
++
++    if (!(ins = sm6_parser_add_function_instruction(sm6, state)))
++        return false;
++    vsir_instruction_init(ins, &sm6->p.location, op);
++    if (!(src_params = instruction_src_params_alloc(ins, src_count, sm6)))
++        goto fail;
++    for (i = 0; i < src_count; ++i)
++    {
++        src_params[i].reg = srcs[i];
++        if (srcs[i].type == VKD3DSPR_IMMCONST && srcs[i].dimension == VSIR_DIMENSION_VEC4 && comps[i] != ~0u)
++        {
++            /* One component of an immediate vector: make it a scalar immediate. */
++            src_params[i].reg.u.immconst_u32[0] = srcs[i].u.immconst_u32[comps[i]];
++            src_params[i].reg.dimension = VSIR_DIMENSION_SCALAR;
++            src_param_init(&src_params[i]);
++        }
++        else if (comps[i] == ~0u)
++            src_param_init_vector_from_reg(&src_params[i], &srcs[i]);
++        else if (srcs[i].dimension == VSIR_DIMENSION_VEC4)
++            src_param_init_scalar(&src_params[i], comps[i]);
++        else
++            src_param_init(&src_params[i]);
++    }
++    if (dst)
++    {
++        if (!(dst_param = instruction_dst_params_alloc(ins, 1, sm6)))
++            goto fail;
++        dst_param_init_with_mask(dst_param, dst_mask);
++        dst_param->reg = *dst;
++        return true;
++    }
++    if (ssa_components > 1 ? instruction_dst_param_init_ssa_vector(ins, ssa_components, sm6)
++            : instruction_dst_param_init_ssa_scalar(ins, 0, sm6))
++        return true;
++fail:
++    vkd3d_shader_instruction_make_nop(ins);
++    return false;
++}
++
++/* unpack4x8(mode, packed): the four bytes, zero- (mode 0) or sign-extended (mode 1), as %dx.types.fouri32. */
++static void sm6_parser_emit_dx_unpack4x8(struct sm6_parser *sm6, enum dx_intrinsic_opcode op,
++        const struct sm6_value **operands, struct function_emission_state *state)
++{
++    struct vkd3d_shader_register srcs[3];
++    unsigned int comps[3] = {~0u, ~0u, 0};
++    bool is_signed = !!sm6_value_get_constant_uint(operands[0], sm6);
++
++    dxil_reg_imm_vec4(&srcs[0], 8, 8, 8, 8);
++    dxil_reg_imm_vec4(&srcs[1], 0, 8, 16, 24);
++    vsir_register_from_dxil_value(&srcs[2], operands[1], 0, sm6);
++    dxil_emit_op(sm6, state, is_signed ? VSIR_OP_IBFE : VSIR_OP_UBFE, NULL, 0, VKD3D_VEC4_SIZE, 3, srcs, comps);
++}
++
++/* pack4x8(mode, x, y, z, w): low bytes of x..w (mode 0: truncate, 1: clamp to u8, 2: clamp to s8). */
++static void sm6_parser_emit_dx_pack4x8(struct sm6_parser *sm6, enum dx_intrinsic_opcode op,
++        const struct sm6_value **operands, struct function_emission_state *state)
++{
++    unsigned int mode = sm6_value_get_constant_uint(operands[0], sm6), i;
++    struct vkd3d_shader_register v, acc, srcs[4];
++    unsigned int comps[4];
++
++    if (!sm6_parser_emit_composite_construct(sm6, &operands[1], VKD3D_VEC4_SIZE, state, &v))
++        return;
++    if (mode == 1 || mode == 2)
++    {
++        int lo = mode == 1 ? 0 : -128, hi = mode == 1 ? 255 : 127;
++        struct vkd3d_shader_register t;
++
++        dxil_reg_temp_vec4(&t, VSIR_DATA_I32, state);
++        srcs[0] = v; srcs[0].data_type = VSIR_DATA_I32;
++        dxil_reg_imm_vec4(&srcs[1], hi, hi, hi, hi); srcs[1].data_type = VSIR_DATA_I32;
++        comps[0] = comps[1] = ~0u;
++        if (!dxil_emit_op(sm6, state, VSIR_OP_IMIN, &t, VKD3DSP_WRITEMASK_ALL, 0, 2, srcs, comps))
++            return;
++        srcs[0] = t;
++        dxil_reg_imm_vec4(&srcs[1], lo, lo, lo, lo); srcs[1].data_type = VSIR_DATA_I32;
++        if (!dxil_emit_op(sm6, state, VSIR_OP_IMAX, &t, VKD3DSP_WRITEMASK_ALL, 0, 2, srcs, comps))
++            return;
++        v = t;
++        v.data_type = VSIR_DATA_U32;
++    }
++    v.data_type = VSIR_DATA_U32;
++    dxil_reg_temp_vec4(&acc, VSIR_DATA_U32, state);
++    srcs[0] = v; comps[0] = 0;
++    dxil_reg_imm_vec4(&srcs[1], 0xff, 0xff, 0xff, 0xff); comps[1] = 0;
++    if (!dxil_emit_op(sm6, state, VSIR_OP_AND, &acc, VKD3DSP_WRITEMASK_0, 0, 2, srcs, comps))
++        return;
++    for (i = 1; i < 4; ++i)
++    {
++        dxil_reg_imm_vec4(&srcs[0], 8, 8, 8, 8); comps[0] = 0;
++        dxil_reg_imm_vec4(&srcs[1], 8 * i, 8 * i, 8 * i, 8 * i); comps[1] = 0;
++        srcs[2] = v; comps[2] = i;
++        srcs[3] = acc; comps[3] = 0;
++        if (!dxil_emit_op(sm6, state, VSIR_OP_BFI, i < 3 ? &acc : NULL, VKD3DSP_WRITEMASK_0, 1, 4, srcs, comps))
++            return;
++    }
++}
++
++/* dot2add(acc, a.xy, b.xy) = acc + a.x * b.x + a.y * b.y, in fp32 (16-bit values are 32-bit registers here). */
++static void sm6_parser_emit_dx_dot2add_half(struct sm6_parser *sm6, enum dx_intrinsic_opcode op,
++        const struct sm6_value **operands, struct function_emission_state *state)
++{
++    struct vkd3d_shader_register t, srcs[3];
++    unsigned int comps[3] = {0, 0, 0};
++
++    dxil_reg_temp_vec4(&t, VSIR_DATA_F32, state);
++    vsir_register_from_dxil_value(&srcs[0], operands[1], 0, sm6);
++    vsir_register_from_dxil_value(&srcs[1], operands[3], 0, sm6);
++    if (!dxil_emit_op(sm6, state, VSIR_OP_MUL, &t, VKD3DSP_WRITEMASK_0, 0, 2, srcs, comps))
++        return;
++    vsir_register_from_dxil_value(&srcs[0], operands[2], 0, sm6);
++    vsir_register_from_dxil_value(&srcs[1], operands[4], 0, sm6);
++    srcs[2] = t;
++    if (!dxil_emit_op(sm6, state, VSIR_OP_MAD, &t, VKD3DSP_WRITEMASK_0, 0, 3, srcs, comps))
++        return;
++    srcs[0] = t;
++    vsir_register_from_dxil_value(&srcs[1], operands[0], 0, sm6);
++    dxil_emit_op(sm6, state, VSIR_OP_ADD, NULL, 0, 1, 2, srcs, comps);
++}
++
++/* dot4add_{i,u}8packed(acc, a, b) = acc + sum of the products of the (sign- or zero-extended) bytes. */
++static void sm6_parser_emit_dx_dot4add_packed(struct sm6_parser *sm6, enum dx_intrinsic_opcode op,
++        const struct sm6_value **operands, struct function_emission_state *state)
++{
++    enum vkd3d_shader_opcode bfe = op == DX_DOT4_ADD_I8_PACKED ? VSIR_OP_IBFE : VSIR_OP_UBFE;
++    struct vkd3d_shader_register va, vb, sum, srcs[3];
++    unsigned int comps[3], i;
++
++    dxil_reg_temp_vec4(&va, VSIR_DATA_U32, state);
++    dxil_reg_temp_vec4(&vb, VSIR_DATA_U32, state);
++    dxil_reg_temp_vec4(&sum, VSIR_DATA_U32, state);
++    for (i = 0; i < 2; ++i)
++    {
++        dxil_reg_imm_vec4(&srcs[0], 8, 8, 8, 8);
++        dxil_reg_imm_vec4(&srcs[1], 0, 8, 16, 24);
++        vsir_register_from_dxil_value(&srcs[2], operands[1 + i], 0, sm6);
++        srcs[2].data_type = VSIR_DATA_U32;
++        comps[0] = comps[1] = ~0u; comps[2] = 0;
++        if (!dxil_emit_op(sm6, state, bfe, i ? &vb : &va, VKD3DSP_WRITEMASK_ALL, 0, 3, srcs, comps))
++            return;
++    }
++    srcs[0] = va; srcs[1] = vb; comps[0] = comps[1] = ~0u;
++    if (!dxil_emit_op(sm6, state, VSIR_OP_IMUL_LOW, &va, VKD3DSP_WRITEMASK_ALL, 0, 2, srcs, comps))
++        return;
++    vsir_register_from_dxil_value(&srcs[0], operands[0], 0, sm6);
++    srcs[0].data_type = VSIR_DATA_U32;
++    comps[0] = 0;
++    for (i = 0; i < 4; ++i)
++    {
++        srcs[1] = va; comps[1] = i;
++        if (!dxil_emit_op(sm6, state, VSIR_OP_IADD, i < 3 ? &sum : NULL, VKD3DSP_WRITEMASK_0, 1, 2, srcs, comps))
++            return;
++        srcs[0] = sum; comps[0] = 0;
++    }
++}
++
+ static void sm6_parser_emit_dx_stream(struct sm6_parser *dxil, enum dx_intrinsic_opcode op,
+         const struct sm6_value **operands, struct function_emission_state *state)
+ {
+@@ -7510,6 +7778,11 @@ static const struct sm6_dx_opcode_info sm6_dx_op_table[] =
+     [DX_COUNT_BITS                    ] = {"i", "m",    sm6_parser_emit_dx_unary},
+     [DX_COVERAGE                      ] = {"i", "",     sm6_parser_emit_dx_coverage},
+     [DX_CREATE_HANDLE                 ] = {"H", "ccib", sm6_parser_emit_dx_create_handle},
++    [DX_CREATE_HANDLE_FROM_BINDING    ] = {"H", "oib",  sm6_parser_emit_dx_create_handle_from_binding},
++    [DX_ANNOTATE_HANDLE               ] = {"H", "Ho",   sm6_parser_emit_dx_annotate_handle},
++    [DX_PACK4X8                       ] = {"i", "ciiii", sm6_parser_emit_dx_pack4x8},
++    [DX_UNPACK4X8                     ] = {"V", "ci",   sm6_parser_emit_dx_unpack4x8},
++    [DX_VIEW_ID                       ] = {"i", "",     sm6_parser_emit_dx_view_id},
+     [DX_CUT_STREAM                    ] = {"v", "c",    sm6_parser_emit_dx_stream},
+     [DX_DERIV_COARSEX                 ] = {"e", "R",    sm6_parser_emit_dx_unary},
+     [DX_DERIV_COARSEY                 ] = {"e", "R",    sm6_parser_emit_dx_unary},
+@@ -7520,6 +7793,9 @@ static const struct sm6_dx_opcode_info sm6_dx_op_table[] =
+     [DX_DOT2                          ] = {"g", "RRRR", sm6_parser_emit_dx_dot},
+     [DX_DOT3                          ] = {"g", "RRRRRR", sm6_parser_emit_dx_dot},
+     [DX_DOT4                          ] = {"g", "RRRRRRRR", sm6_parser_emit_dx_dot},
++    [DX_DOT2_ADD_HALF                 ] = {"f", "feeee", sm6_parser_emit_dx_dot2add_half},
++    [DX_DOT4_ADD_I8_PACKED            ] = {"i", "iii",  sm6_parser_emit_dx_dot4add_packed},
++    [DX_DOT4_ADD_U8_PACKED            ] = {"i", "iii",  sm6_parser_emit_dx_dot4add_packed},
+     [DX_EMIT_STREAM                   ] = {"v", "c",    sm6_parser_emit_dx_stream},
+     [DX_EMIT_THEN_CUT_STREAM          ] = {"v", "c",    sm6_parser_emit_dx_stream},
+     [DX_EVAL_CENTROID                 ] = {"o", "cic",  sm6_parser_emit_dx_eval_attrib},
+@@ -11426,6 +11702,23 @@ static enum vkd3d_result sm6_parser_entry_point_init(struct sm6_parser *sm6)
+                     if ((ret = sm6_parser_emit_thread_group(sm6, node->operands[i + 1])) < 0)
+                         return ret;
+                     break;
++                case SHADER_PROPERTIES_WAVE_SIZE:
++                {
++                    const struct sm6_metadata_value *v = node->operands[i + 1];
++                    unsigned int wave_size = 0;
++
++                    /* SM 6.6 [WaveSize(n)]: the value is !{i32 n}. Apple GPUs (the only target of this build)
++                     * always run 32-wide SIMD groups, so 32 is honoured as is and anything else is refused. */
++                    if (v && v->type == VKD3D_METADATA_NODE && v->u.node->operand_count)
++                        v = v->u.node->operands[0];
++                    if (!sm6_metadata_get_uint_value(sm6, v, &wave_size) || wave_size != 32)
++                    {
++                        vkd3d_shader_parser_error(&sm6->p, VKD3D_SHADER_ERROR_DXIL_INVALID_PROPERTIES,
++                                "Wave size %u is not supported.", wave_size);
++                        return VKD3D_ERROR_INVALID_SHADER;
++                    }
++                    break;
++                }
+                 default:
+                     FIXME("Unhandled tag %#x.\n", tag);
+                     vkd3d_shader_parser_error(&sm6->p, VKD3D_SHADER_ERROR_DXIL_INVALID_PROPERTIES,
+-- 
+2.54.0 (Apple Git-157)
+

@@ -1,0 +1,6 @@
+; Engine configuration file for the wintomac Godot smoke test.
+config_version=5
+
+[application]
+config/name="wintomac smoke"
+run/main_scene="res://main.tscn"

@@ -1,0 +1,44 @@
+; Import library for tests that call steam_api64.dll (built into build/libsteam_api64.a by the Makefile).
+; The functions themselves are runtime/steam.c shims; list the ones a test needs.
+LIBRARY steam_api64.dll
+EXPORTS
+    SteamAPI_GetHSteamPipe
+    SteamAPI_GetHSteamUser
+    SteamAPI_Init
+    SteamAPI_IsSteamRunning
+    SteamAPI_ISteamApps_BIsDlcInstalled
+    SteamAPI_ISteamApps_BIsSubscribedApp
+    SteamAPI_ISteamApps_GetCurrentGameLanguage
+    SteamAPI_ISteamFriends_GetFriendByIndex
+    SteamAPI_ISteamFriends_GetFriendCount
+    SteamAPI_ISteamFriends_GetFriendPersonaName
+    SteamAPI_ISteamFriends_GetPersonaName
+    SteamAPI_ISteamRemoteStorage_FileRead
+    SteamAPI_ISteamRemoteStorage_FileWrite
+    SteamAPI_ISteamRemoteStorage_GetQuota
+    SteamAPI_ISteamUser_BLoggedOn
+    SteamAPI_ISteamUser_GetSteamID
+    SteamAPI_ISteamUserStats_GetAchievement
+    SteamAPI_ISteamUserStats_GetStatFloat
+    SteamAPI_ISteamUserStats_GetStatInt32
+    SteamAPI_ISteamUserStats_SetAchievement
+    SteamAPI_ISteamUserStats_SetStatFloat
+    SteamAPI_ISteamUtils_GetAppID
+    SteamAPI_ISteamUtils_GetIPCountry
+    SteamAPI_RegisterCallback
+    SteamAPI_RegisterCallResult
+    SteamAPI_RestartAppIfNecessary
+    SteamAPI_RunCallbacks
+    SteamAPI_Shutdown
+    SteamAPI_SteamApps_v008
+    SteamAPI_SteamFriends_v017
+    SteamAPI_SteamRemoteStorage_v016
+    SteamAPI_SteamUser_v023
+    SteamAPI_SteamUserStats_v012
+    SteamAPI_SteamUtils_v010
+    SteamAPI_UnregisterCallback
+    SteamAPI_UnregisterCallResult
+    SteamInternal_ContextInit
+    SteamInternal_CreateInterface
+    SteamInternal_FindOrCreateUserInterface
+    SteamUtils

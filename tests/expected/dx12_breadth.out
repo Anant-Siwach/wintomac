@@ -1,0 +1,83 @@
+[rt] d3d12: unimplemented: DRED settings (accepted, no-op)
+[rt] d3d12: unimplemented: D3D12GetInterface (non-debug class)
+[rt] d3d12: unimplemented: D3D12EnableExperimentalFeatures
+[rt] d3d12: unimplemented: DirectStorage (DStorageGetFactory): not available
+[rt] d3d12: unimplemented: ID3D12InfoQueue (no-op object)
+[rt] d3d12: unimplemented: ID3D12 Device::QueryInterface({3FEBD6DD-4973-4787-8194-E45F9E28923E})
+[rt] d3d12: unimplemented: ID3D12 Device::QueryInterface({12345678-1234-1234-1234-123412341234})
+[rt] d3d12: unimplemented: CreateCommittedResource3: castable formats ignored
+[rt] d3d12: unimplemented: ID3D12GraphicsCommandList7::Barrier (enhanced barriers, translated to legacy barriers)
+DXGI:
+  IDXGIFactory6::EnumAdapterByGpuPreference(0, high performance) = 0x00000000
+  IDXGIAdapter4::GetDesc3 = 0x00000000, dedicated video memory > 0: 0
+  IDXGIOutput6::GetDesc1 = 0x00000000, colour space 0 (SDR), bits per colour 8
+  IDXGIOutput6::CheckHardwareCompositionSupport = 0x00000000
+  IDXGIFactory5::CheckFeatureSupport(ALLOW_TEARING) = 0x00000000, 1
+d3d12.dll:
+  D3D12GetDebugInterface(DRED settings) = 0x00000000
+  DRED settings: enablement accepted, QI Settings2 = 0x00000000
+  D3D12GetInterface(SDK configuration) = 0x80004002 (no Agility SDK)
+  D3D12GetInterface(DRED, Settings2) = 0x00000000
+  D3D12EnableExperimentalFeatures(shader models) = 0x80004002
+  dstorage.dll: DStorageGetFactory = 0x80004001, factory NULL
+device:
+  QI ID3D12Device1                      ok (same object)
+  QI ID3D12Device2                      ok (same object)
+  QI ID3D12Device3                      ok (same object)
+  QI ID3D12Device4                      ok (same object)
+  QI ID3D12Device5                      ok (same object)
+  QI ID3D12Device6                      ok (same object)
+  QI ID3D12Device7                      ok (same object)
+  QI ID3D12Device8                      ok (same object)
+  QI ID3D12Device9                      ok (same object)
+  QI ID3D12Device10                     ok (same object)
+  QI ID3D12Device11                     ok (same object)
+  QI ID3D12Device12                     ok (same object)
+  QI ID3D12Device13                     ok (same object)
+  QI ID3D12Device14                     ok (same object)
+  QI ID3D12InfoQueue                    ok
+  QI ID3D12InfoQueue1                   ok
+  QI ID3D12DeviceRemovedExtendedData2   ok
+  QI ID3D12DebugDevice (debug layer off) E_NOINTERFACE
+  QI unknown IID                        E_NOINTERFACE
+  InfoQueue1: 0 stored messages, PushStorageFilter 0x00000000, RegisterMessageCallback 0x00000000 cookie 1
+  DRED1: GetAutoBreadcrumbsOutput1 = 0x887a0022 (DRED off)
+  removed reason = 0x00000000
+features:
+  max feature level c000 (0x00000000)
+  D3D12CreateDevice(12_0) = 0x00000000
+  shader model: asked 6.9 -> 6.4
+  binding tier 3, tiled resources tier 0, conservative raster tier 0, ROVs 1, typed UAV loads 1
+  raytracing tier 0, VRS tier 0, mesh shader tier 0, sampler feedback tier 0, enhanced barriers 0 (0x00000000)
+  root signature 1.1, UMA 0, cache-coherent UMA 0
+resources:
+  CreateCommittedResource1 = 0x00000000
+  CreateCommittedResource2 = 0x00000000
+  CreateCommittedResource3 = 0x00000000
+  GetResourceAllocationInfo1/2/3: size 65536 / 65536 / 65536, same: 1
+  CreateHeap1 = 0x00000000
+  QI ID3D12Heap1                        ok (same object)
+  CreatePlacedResource1 = 0x00000000
+  CreatePlacedResource2 = 0x00000000
+  QI ID3D12Resource1                    ok (same object)
+  QI ID3D12Resource2                    ok (same object)
+  ID3D12Resource2::GetDesc1: 64x64 format 28
+  CreateReservedResource2: fails cleanly (no tiled resources)
+  CreateSampler2 (UINT border colour): done
+command lists:
+  CreateCommandQueue1 = 0x00000000
+  QI ID3D12GraphicsCommandList1         ok (same object)
+  QI ID3D12GraphicsCommandList2         ok (same object)
+  QI ID3D12GraphicsCommandList3         ok (same object)
+  QI ID3D12GraphicsCommandList4         ok (same object)
+  QI ID3D12GraphicsCommandList5         ok (same object)
+  QI ID3D12GraphicsCommandList6         ok (same object)
+  QI ID3D12GraphicsCommandList7         ok (same object)
+  QI ID3D12GraphicsCommandList8         ok (same object)
+  QI ID3D12GraphicsCommandList9         ok (same object)
+  QI ID3D12GraphicsCommandList10        ok (same object)
+  QI ID3D12Fence1                       ok (same object)
+  enhanced barriers + Close 0x00000000, executed: yes
+device released, refs=0
+ok
+[exit=0]

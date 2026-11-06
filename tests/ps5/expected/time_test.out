@@ -1,0 +1,8 @@
+monotonic advanced 50ms: 1 (<500ms: 1)
+nanosleep 20ms: 1
+time sane (>2020): 1, gtod==time: 1
+realtime sane: 1
+gmtime=2023-11-14 22:13:20 wday=2 yday=317
+timegm +40d=1703456000
+clock() sane: 1
+[exit=0]

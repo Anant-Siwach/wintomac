@@ -1,0 +1,14 @@
+WSAStartup: 0 version=2.2
+listening: port assigned=yes reuseaddr=on
+non-blocking connect: WSAEWOULDBLOCK (pending)
+select writable: 1, FD_ISSET=1
+server: peer family=2 len=16 loopback=yes
+tcp echo: 'HELLO WINSOCK' (13 bytes, FIONREAD said 13)
+recv after peer close: 0
+connect to closed port: WSAECONNREFUSED
+udp: 'ping' 4 bytes from family=2 addrlen=16
+getaddrinfo(localhost:80): 0 -> 127.0.0.1 port 80 family=2 addrlen=16
+unknown host: WSAHOST_NOT_FOUND
+inet_pton/ntop v6 round trip: 2001:db8::1, inet_addr: 0a010203
+gethostname: ok
+[exit=0]

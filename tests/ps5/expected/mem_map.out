@@ -1,0 +1,17 @@
+mmap ok=1
+pages sum=32640 zero-fill=1
+mprotect=0
+munmap=0
+malloc stress ok=1
+memalign64k ok=1
+realloc keeps=grow
+calloc zero=1
+direct memory size >= 1GiB: 1
+allocdirect rc=0
+mapdirect rc=0 aligned=1
+direct rw=1
+munmap rc=0
+release rc=0
+flex rc=0
+flex rw=1
+[exit=0]

@@ -1,0 +1,9 @@
+hello from mathlib.dll
+attached=1 counter=101
+apply: 42 42 42
+fold(max via exe callback) = 41
+GetModuleHandle matches FROM_ADDRESS: yes
+strlib: loaded=yes len=8 score=1096354
+missing export -> 0000000000000000
+data export via GetProcAddress = 101
+[exit=0]
